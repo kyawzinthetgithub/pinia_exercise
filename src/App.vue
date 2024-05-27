@@ -5,6 +5,8 @@ import { useProductStore } from "@/stores/ProductStore.js";
 // import { storeToRefs } from "pinia";
 // const { products } = storeToRefs(useProductStore());
 const ProductStore = useProductStore();
+import { UseCartStore } from "./stores/CartStore";
+const cartStore = UseCartStore();
 ProductStore.pushProducts();
 </script>
 
@@ -16,6 +18,7 @@ ProductStore.pushProducts();
         v-for="product in ProductStore.products"
         :key="product.name"
         :product="product"
+        @addToCart="cartStore.addItems($event, product)"
       />
     </ul>
   </div>
