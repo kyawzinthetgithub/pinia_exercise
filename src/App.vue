@@ -6,35 +6,8 @@ import { useProductStore } from "@/stores/ProductStore.js";
 // const { products } = storeToRefs(useProductStore());
 const ProductStore = useProductStore();
 import { UseCartStore } from "./stores/CartStore";
-import { ref, reactive } from "vue";
 const cartStore = UseCartStore();
-const history = reactive([]);
-const doingHistory = ref(false);
-const future = reactive([]);
 
-history.push(JSON.stringify(cartStore.$state));
-const redo = () => {
-  const lastState = future.pop();
-  if (!lastState) return;
-  doingHistory.value = true;
-  history.push(lastState);
-  cartStore.$state = JSON.parse(lastState);
-  doingHistory.value = false;
-};
-function undo() {
-  if (history.length === 1) return;
-  doingHistory.value = true;
-  future.push(history.pop());
-  cartStore.$state = JSON.parse(history.at(-1));
-  doingHistory.value = false;
-}
-
-cartStore.$subscribe((mutation, state) => {
-  if (!doingHistory.value) {
-    history.push(JSON.stringify(state));
-    future.splice(0, future.length);
-  }
-});
 
 cartStore.$onAction(({ name, store, args, after, onError }) => {
   if (name === "addItems") {
@@ -54,8 +27,8 @@ ProductStore.pushProducts();
   <div class="container">
     <TheHeader />
     <div class="mg-5 flex justify-end gap-x-5">
-      <AppButton @click="redo">Redo</AppButton>
-      <AppButton @click="undo()">Undo</AppButton>
+      <AppButton @click="cartStore.redo()">Redo</AppButton>
+      <AppButton @click="cartStore.undo()">Undo</AppButton>
     </div>
     <ul class="sm:flex flex-wrap lg:flex-nowrap gap-5">
       <ProductCard
